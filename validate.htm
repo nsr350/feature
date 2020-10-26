@@ -1,0 +1,148 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" href="../ui/css/design10.css">
+<link rel="stylesheet" type="text/css" href="../ui/css/jquery-ui.css">
+<link rel="stylesheet" type="text/css" href="../ui/css/jquery-prefpage.css">
+<script type="text/javascript" src="../ui/js/jquery-3.3.1.js"></script>
+<script type="text/javascript" src="../ui/js/jquery-ui.js"></script>
+<script type="text/javascript" src="../ui/js/jquery-common.js"></script>
+<script type="text/javascript" src="../ui/js/jquery-ymenu.js"></script>
+<script type="text/javascript" src="jquery.validate.js"></script>
+<script type="text/javascript">
+//チェック関数追加
+jQuery.validator.addMethod("cdate",
+	function(value, element) {
+		r = value.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
+		if(!r){
+			return false;
+		}
+		if (r[2] < 1 || r[2] > 12 || r[3] < 1) {
+			return false;
+		}
+		if (r[2] == 2) {
+			return r[3] <= (r[1] % 4 == 0 && r[1] % 100 != 0 || r[1] % 400 == 0 ? 29 : 28);
+		}
+		return r[3] <= (r[2] == 4 || r[2] == 6 || r[2] == 9 || r[2] == 11 ? 30 : 31);
+	},
+	"Please enter a valid date.#"
+);
+
+//よけいなイベントを削除
+$(document).off("keydown click");
+
+function firstAttack()
+{
+	//メニュー
+	$("#menu").ymenu({ source: "../ui/json/preferences-menu.js", selected:"debug,debug10" });
+
+	//https://www.htmlhifive.com/conts/web/view/library/jquery-validate
+	//入力項目のチェック方式を記載
+	//numberはカンマ入り数値のチェックは通る。min、maxは通らない
+	var rule = {
+		txtBox1: { required:true, minlength:2, maxlength:5 },
+		txtBox2: { required:true, number:true, min:2, max:2000 },
+		txtBox3: { required:true, cdate:true },
+		'chk[]': { required:true }
+	};
+
+	//各項目のエラーメッセージ定義
+	var msg = {
+		txtBox1: {
+			required:"<p>※名前は必須項目です。</p>",
+			minlength:"※名前は2文字以上入力してください。",
+			maxlength:"※名前は11文字以下で入力してください。"
+		},
+		txtBox2: {
+			required:"※数値は必須項目です。",
+			number: "※数値で入力してください。",
+			min:"※1以上の数値を入力してください",
+			max:"※1000以下の数値を入力してください"
+		},
+		'chk[]': {
+			required:"チェックボックスを選択してください"
+		}
+	};
+
+	// 入力チェック対象のフォームIDを指定
+	$("form:first").validate({
+		rules: rule,
+		messages: msg,
+		errorElement: 'p',
+		errorClass: 'R',
+		errorPlacement: function(error, element) {
+			//エラーを出す位置
+			if ( element.attr("name") == "chk[]" ) {
+				error.insertAfter($('#chkErr'));
+			}
+			else {
+				error.insertAfter(element);
+			}
+		}
+	});
+
+}
+</script>
+</head>
+<body>
+<ul id="menu"></ul>
+<form>
+<p>HTML<strong>4</strong> で表示</p>
+<table>
+<tr>
+	<th>search</th>
+	<td>
+		<input id="txtBox0" name="txtBox0" type="text">
+	</td>
+</tr><tr>
+	<th class="H">text</th>
+	<td><input id="txtBox1" name="txtBox1" type="text">2～5文字</td>
+</tr><tr>
+	<th class="H">数値</th>
+	<td><input name="txtBox2" type="text">2～2,000</td>
+</tr><tr>
+	<th class="H">日付</th>
+	<td><input name="txtBox3" id="txtBox3" type="text" class="DA" required>2000/1/1～2010/1/1</td>
+</tr><tr>
+	<th>email(@drs.co.jp)</th>
+	<td>
+		<input name="txtBox5" type="text">
+	</td>
+</tr><tr>
+	<th>tel</th>
+	<td><input name="txtBox6" type="text" maxlength="20"></td>
+</tr><tr>
+	<th>ラジオ</th>
+	<td>
+		<input type="radio" id="r1" name="radiogrp">radio1
+		<input type="radio" id="r2" name="radiogrp">radio2
+		<input type="radio" id="r3" name="radiogrp">radio3
+	</td>
+</tr><tr>
+	<th class="H">チェック</th>
+	<td>
+		チェックボックスにrequiredは付けられない<br>
+		<input type="checkbox" id="c1" name="chk[]" value="1">checkbox1<br>
+		<input type="checkbox" id="c2" name="chk[]" value="2">checkbox2<br>
+		<input type="checkbox" id="c3" name="chk[]" value="3">checkbox3<br>
+		<span id="chkErr"></span>
+	</td>
+</tr><tr>
+	<th></th>
+	<td>
+		<select id="ddl" name="ddl">
+			<option value="opt1">opt1</option>
+			<option value="opt2">opt2</option>
+			<option value="opt3">opt3</option>
+		</select>
+	</td>
+</tr></table>
+<input type="submit" value="送信">
+	<br>
+
+<textarea id="debugarea" rows="10" cols="20"></textarea>
+
+</form>
+</body>
+</html>
